@@ -57,14 +57,13 @@ def calculate_route_cost(cost_mat, route):
     return total_dist
 
 
-def two_opt(cost_matrix, init_toure, improvement_threshold=0.001):
+def two_opt(cost_matrix, init_toure, route_plot=None, improvement_threshold=0.001):
     # 2-opt Algorithm adapted from https://en.wikipedia.org/wiki/2-opt
-    # Initialize the improvement factor.
-    improvement_factor = 1
     best_distance = calculate_route_cost(cost_matrix, init_toure)
     route = init_toure
     best = init_toure
     improved = True
+    distances = []
     while improved:
         improved = False
         for i in range(1, len(route) - 2):
@@ -73,11 +72,44 @@ def two_opt(cost_matrix, init_toure, improvement_threshold=0.001):
                     continue  # changes nothing, skip then
                 new_route = route[:]
                 new_route[i:j] = route[j - 1:i - 1:-1]  # this is the 2woptSwap
-                if calculate_route_cost(cost_matrix, new_route) < calculate_route_cost(cost_matrix, best):
+                dist = calculate_route_cost(cost_matrix, new_route)
+                distances.append(dist)
+                if dist < best_distance:
                     best = new_route
+                    best_distance = dist
+                    if route_plot is not None:
+                        route_plot.update_data(best, None)
                     improved = True
+
         route = best
-    return best, None
+    return best, distances
+
+
+def two_opt_ii(cost_matrix, init_toure, route_plot=None, improvement_threshold=0.001):
+    best_distance = calculate_route_cost(cost_matrix, init_toure)
+    route = init_toure
+    best = init_toure
+    improved = True
+    distances = []
+    while improved:
+        improved = False
+        for i in range(1, len(route) - 2):
+            for j in range(i + 1, len(route)):
+                if j - i == 1:
+                    continue  # changes nothing, skip then
+                new_route = route[:]
+                new_route[i:j] = route[j - 1:i - 1:-1]  # this is the 2woptSwap
+                dist = calculate_route_cost(cost_matrix, new_route)
+                distances.append(dist)
+                if dist < best_distance:
+                    best = new_route
+                    best_distance = dist
+                    if route_plot is not None:
+                        route_plot.update_data(best, None)
+                    improved = True
+
+        route = best
+    return best, distances
 
 
 def solve_it(input_data):
@@ -93,10 +125,18 @@ def solve_it(input_data):
 
     cost_matrix = create_cost_matrix(points)
     init_toure = get_initial_tour(points, cost_matrix)
+    init_cost = calculate_route_cost(cost_matrix, init_toure)
 
-    two_opt_plot = RoutePlot(points, init_toure)
+    two_opt_plot = RoutePlot(points)
+    two_opt_plot.add_route(init_toure, init_cost)
 
-    solution, cost_list = two_opt(cost_matrix, init_toure)
+    solution, cost_list = two_opt(cost_matrix, init_toure, two_opt_plot)
+
+    bench = [0, 5, 2, 28, 10, 9, 45, 3, 27, 41, 24, 46, 8, 4, 34, 23, 35, 13, 7, 19,
+             40, 18, 16, 44, 14, 15, 38, 50, 39, 49, 17, 32, 48, 22, 31, 1, 25, 20,
+             37, 21, 43, 29, 42, 11, 30, 12, 36, 6, 26, 47, 33, 0]
+    cost = calculate_route_cost(cost_matrix, bench)
+    two_opt_plot.add_route(bench, cost, color='blue')
 
     # calculate the length of the tour
     obj = length(points[solution[-1]], points[solution[0]])
@@ -121,7 +161,7 @@ if __name__ == '__main__':
     #     print('This test requires an input file.  Please select one from the data directory. '
     #           '(i.e. python solver.py ./data/tsp_51_1)')
 
-with open("input_file", 'r') as file:
+with open("input_data_file", 'r') as file:
     input_list = file.read().split()
     if len(input_list) > 1:
         for file_location in input_list:

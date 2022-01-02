@@ -3,26 +3,30 @@ import matplotlib.pyplot as plt
 
 
 class RoutePlot:
-    def __init__(self, points, route):
+    def __init__(self, points):
+        self.lines = None
         plt.ion()
         self.fig = plt.figure()
         self.points = points
         self.ax = self.fig.add_subplot()
-        x_values = [points[i].x for i in route]
-        y_values = [points[i].y for i in route]
-        # x_values.append(points[0].x)
-        # y_values.append(points[0].y)
+        x_values = [p.x for p in points]
+        y_values = [p.y for p in points]
         self.dots = self.ax.scatter(x_values, y_values, s=10)
-        self.lines,  = self.ax.plot(x_values, y_values, linewidth=1, color='red')
         for i, p in enumerate(points):
             self.ax.text(p.x, p.y, "%d" % i, ha="center")
+
+    def add_route(self, route, cost=None, color='red'):
+        x_values = [self.points[i].x for i in route]
+        y_values = [self.points[i].y for i in route]
+        if cost is not None:
+            self.ax.set_title(f"TWO-OPT Cost:{round(cost, 2)}", fontsize=16)
+        self.lines, = self.ax.plot(x_values, y_values, linewidth=1, color=color)
 
     def update_data(self, route, cost=None):
         x_values = [self.points[i].x for i in route]
         y_values = [self.points[i].y for i in route]
-        # x_values.append(self.points[0].x)
-        # y_values.append(self.points[0].y)
-        self.ax.set_title(f"TWO-OPT Cost:{round(cost, 2)}", fontsize=16)
+        if cost is not None:
+            self.ax.set_title(f"TWO-OPT Cost:{round(cost, 2)}", fontsize=16)
         self.lines.set_xdata(x_values)
         self.lines.set_ydata(y_values)
 
