@@ -22,11 +22,11 @@ class RoutePlot:
             self.ax.set_title(f"TWO-OPT Cost:{round(cost, 2)}", fontsize=16)
         self.lines, = self.ax.plot(x_values, y_values, linewidth=1, color=color)
 
-    def update_data(self, route, cost=None):
+    def update_data(self, route, cost, best_cost):
         x_values = [self.points[i].x for i in route]
         y_values = [self.points[i].y for i in route]
         if cost is not None:
-            self.ax.set_title(f"TWO-OPT Cost:{round(cost, 2)}", fontsize=16)
+            self.ax.set_title(f"TWO-OPT Cost:{round(cost, 2)}/{round(best_cost, 2)}", fontsize=16)
         self.lines.set_xdata(x_values)
         self.lines.set_ydata(y_values)
 
