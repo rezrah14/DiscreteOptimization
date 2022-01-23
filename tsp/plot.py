@@ -32,6 +32,7 @@ class RoutePlot:
 
         self.fig.canvas.draw()
         self.fig.canvas.flush_events()
+        plt.pause(0.01)
 
 
 class CostPlot:
